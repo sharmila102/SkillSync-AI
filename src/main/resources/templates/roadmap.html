@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkillSync AI - AI Learning Roadmap</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="bg-glow"></div>
+    <div class="bg-glow-right"></div>
+
+    <!-- Navigation Header -->
+    <nav class="navbar navbar-expand-lg navbar-custom navbar-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold d-flex align-items-center" href="/dashboard">
+                <i class="bi bi-cpu-fill me-2 text-neon-blue"></i>
+                <span>SkillSync AI</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom" href="/dashboard"><i class="bi bi-speedometer2 me-1"></i> Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom active" href="/dashboard/roadmap"><i class="bi bi-compass me-1"></i> AI Roadmap</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom" href="/dashboard/quiz"><i class="bi bi-journal-code me-1"></i> Skill Quizzes</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom" href="/dashboard/profile"><i class="bi bi-person me-1"></i> My Profile</a>
+                    </li>
+                    <li class="nav-item ms-lg-3">
+                        <form th:action="@{/logout}" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-neon-outline py-2 px-3 btn-sm">
+                                <i class="bi bi-box-arrow-right me-1"></i> Logout
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-5 animated-fade-in">
+        
+        <!-- Back Link and Header -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <a href="/dashboard" class="text-secondary small text-decoration-none mb-3 d-inline-block">
+                    <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
+                </a>
+                <div class="glass-card p-4">
+                    <h1 class="h2 fw-bold font-outfit mb-1"><i class="bi bi-compass-fill text-neon-blue me-2"></i> Personalized AI Learning Roadmap</h1>
+                    <p class="text-secondary mb-0">Customized timeline and resource index matching the competencies required for <strong class="text-white" th:text="${user.jobRole}">Java Developer</strong>.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Left Column: Markdown Timeline Roadmap -->
+            <div class="col-lg-8">
+                <div class="glass-card">
+                    <!-- Check if user has analyzed resume -->
+                    <div th:if="${user.roadmapMarkdown == null}" class="text-center py-5">
+                        <i class="bi bi-compass fs-1 text-secondary mb-3 d-block"></i>
+                        <h2 class="h4">No Roadmap Available</h2>
+                        <p class="text-secondary col-md-8 mx-auto mb-4">You must upload your resume and run the skill analyzer module from the dashboard before generating a learning roadmap.</p>
+                        <a href="/dashboard" class="btn btn-neon">Go to Dashboard</a>
+                    </div>
+
+                    <!-- Markdown renderer -->
+                    <div th:if="${user.roadmapMarkdown != null}">
+                        <textarea id="rawMarkdown" th:text="${user.roadmapMarkdown}" style="display:none;"></textarea>
+                        <div id="roadmapContent" class="roadmap-content"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Online Courses, Project ideas, Certifications -->
+            <div class="col-lg-4">
+                <div class="row g-4">
+                    
+                    <!-- Section 1: Recommended Courses -->
+                    <div class="col-12">
+                        <div class="glass-card">
+                            <h3 class="h5 fw-bold mb-4"><i class="bi bi-mortarboard text-neon-blue me-2"></i> Recommended Courses</h3>
+                            
+                            <div th:if="${courses.isEmpty()}" class="text-secondary small py-2">
+                                No course recommendations available.
+                            </div>
+                            
+                            <div class="d-flex flex-column gap-3" th:if="${!courses.isEmpty()}">
+                                <div th:each="course : ${courses}" 
+                                     class="p-3 bg-dark bg-opacity-30 border border-secondary border-opacity-10 rounded-3 d-flex justify-content-between align-items-center"
+                                     th:classappend="${course.completed ? 'border-success border-opacity-30 bg-success bg-opacity-5' : ''}">
+                                    <div>
+                                        <h4 class="h6 text-white fw-bold mb-2" 
+                                            th:classappend="${course.completed ? 'text-decoration-line-through text-opacity-50 text-secondary' : ''}" 
+                                            th:text="${course.name}">Course Name</h4>
+                                        <div class="d-flex gap-3 text-secondary small">
+                                            <span><i class="bi bi-globe me-1"></i> <span th:text="${course.platform}">Platform</span></span>
+                                            <span><i class="bi bi-clock me-1"></i> <span th:text="${course.duration}">Duration</span></span>
+                                        </div>
+                                    </div>
+                                    <button class="btn btn-sm btn-link text-decoration-none p-0 ms-2 toggle-btn" 
+                                            th:data-type="'course'" 
+                                            th:data-name="${course.name}">
+                                        <i class="bi fs-5" th:classappend="${course.completed ? 'bi-check-circle-fill text-success' : 'bi-circle text-secondary'}"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 2: Portfolio Projects -->
+                    <div class="col-12">
+                        <div class="glass-card">
+                            <h3 class="h5 fw-bold mb-4"><i class="bi bi-code-square text-neon-purple me-2"></i> Portfolio Projects</h3>
+                            
+                            <div th:if="${projects.isEmpty()}" class="text-secondary small py-2">
+                                No project recommendations available.
+                            </div>
+
+                            <div class="d-flex flex-column gap-3" th:if="${!projects.isEmpty()}">
+                                <div th:each="project : ${projects}" 
+                                     class="p-3 bg-dark bg-opacity-30 border border-secondary border-opacity-10 rounded-3 d-flex justify-content-between align-items-start"
+                                     th:classappend="${project.completed ? 'border-success border-opacity-30 bg-success bg-opacity-5' : ''}">
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <h4 class="h6 text-white fw-bold mb-0" 
+                                                th:classappend="${project.completed ? 'text-decoration-line-through text-opacity-50 text-secondary' : ''}" 
+                                                th:text="${project.title}">Project Title</h4>
+                                            <span class="badge" 
+                                                  th:classappend="${project.difficulty == 'Easy' ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-20' : 
+                                                                  (project.difficulty == 'Medium' ? 'bg-warning bg-opacity-10 text-warning border border-warning border-opacity-20' : 
+                                                                  'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-20')}" 
+                                                  th:text="${project.difficulty}">Difficulty</span>
+                                        </div>
+                                        <p class="text-secondary small mb-0" 
+                                           th:classappend="${project.completed ? 'text-opacity-50' : ''}" 
+                                           th:text="${project.description}">Project Description</p>
+                                    </div>
+                                    <button class="btn btn-sm btn-link text-decoration-none p-0 ms-3 toggle-btn mt-1" 
+                                            th:data-type="'project'" 
+                                            th:data-name="${project.title}">
+                                        <i class="bi fs-5" th:classappend="${project.completed ? 'bi-check-circle-fill text-success' : 'bi-circle text-secondary'}"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 3: Recommended Certifications -->
+                    <div class="col-12">
+                        <div class="glass-card">
+                            <h3 class="h5 fw-bold mb-4"><i class="bi bi-award text-neon-blue me-2"></i> Professional Certifications</h3>
+                            
+                            <div th:if="${certifications.isEmpty()}" class="text-secondary small py-2">
+                                No certification recommendations available.
+                            </div>
+
+                            <div class="d-flex flex-column gap-3" th:if="${!certifications.isEmpty()}">
+                                <div th:each="cert : ${certifications}" 
+                                     class="p-3 bg-dark bg-opacity-30 border border-secondary border-opacity-10 rounded-3 d-flex justify-content-between align-items-center"
+                                     th:classappend="${cert.completed ? 'border-success border-opacity-30 bg-success bg-opacity-5' : ''}">
+                                    <div>
+                                        <h4 class="h6 text-white fw-bold mb-1" 
+                                            th:classappend="${cert.completed ? 'text-decoration-line-through text-opacity-50 text-secondary' : ''}" 
+                                            th:text="${cert.name}">Certification Name</h4>
+                                        <span class="text-secondary small"><i class="bi bi-building me-1"></i> <span th:text="${cert.authority}">Authority</span></span>
+                                    </div>
+                                    <button class="btn btn-sm btn-link text-decoration-none p-0 ms-2 toggle-btn" 
+                                            th:data-type="'certification'" 
+                                            th:data-name="${cert.name}">
+                                        <i class="bi fs-5" th:classappend="${cert.completed ? 'bi-check-circle-fill text-success' : 'bi-circle text-secondary'}"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="border-top border-secondary border-opacity-10 py-4 mt-5 bg-dark bg-opacity-20">
+        <div class="container text-center">
+            <p class="text-secondary mb-0">© 2026 SkillSync AI. Designed with modern purple-blue theme. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Marked.js Markdown Parser -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script th:if="${user.roadmapMarkdown != null}">
+        document.addEventListener("DOMContentLoaded", function() {
+            var rawMarkdown = document.getElementById("rawMarkdown").value;
+            // Compile marked options to render properly
+            document.getElementById("roadmapContent").innerHTML = marked.parse(rawMarkdown);
+
+            // Checklist Toggling Ajax Logic
+            const toggleButtons = document.querySelectorAll('.toggle-btn');
+            toggleButtons.forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const type = btn.getAttribute('data-type');
+                    const name = btn.getAttribute('data-name');
+                    
+                    const formData = new FormData();
+                    formData.append('type', type);
+                    formData.append('name', name);
+                    
+                    fetch('/dashboard/roadmap/toggle', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Update icon and container styles
+                            const icon = btn.querySelector('i');
+                            const container = btn.closest('.rounded-3');
+                            const title = container.querySelector('h4');
+                            const desc = container.querySelector('p');
+                            
+                            if (data.completed) {
+                                icon.classList.remove('bi-circle', 'text-secondary');
+                                icon.classList.add('bi-check-circle-fill', 'text-success');
+                                container.classList.add('border-success', 'border-opacity-30', 'bg-success', 'bg-opacity-5');
+                                if (title) title.classList.add('text-decoration-line-through', 'text-opacity-50', 'text-secondary');
+                                if (desc) desc.classList.add('text-opacity-50');
+                            } else {
+                                icon.classList.remove('bi-check-circle-fill', 'text-success');
+                                icon.classList.add('bi-circle', 'text-secondary');
+                                container.classList.remove('border-success', 'border-opacity-30', 'bg-success', 'bg-opacity-5');
+                                if (title) title.classList.remove('text-decoration-line-through', 'text-opacity-50', 'text-secondary');
+                                if (desc) desc.classList.remove('text-opacity-50');
+                            }
+                        }
+                    })
+                    .catch(err => console.error("Error toggling item:", err));
+                });
+            });
+        });
+    </script>
+</body>
+</html>

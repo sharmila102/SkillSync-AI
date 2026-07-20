@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkillSync AI - Dashboard</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="bg-glow"></div>
+    <div class="bg-glow-right"></div>
+
+    <!-- Navigation Header -->
+    <nav class="navbar navbar-expand-lg navbar-custom navbar-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold d-flex align-items-center" href="/dashboard">
+                <i class="bi bi-cpu-fill me-2 text-neon-blue"></i>
+                <span>SkillSync AI</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom active" href="/dashboard"><i class="bi bi-speedometer2 me-1"></i> Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom" href="/dashboard/roadmap"><i class="bi bi-compass me-1"></i> AI Roadmap</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom" href="/dashboard/quiz"><i class="bi bi-journal-code me-1"></i> Skill Quizzes</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom" href="/dashboard/profile"><i class="bi bi-person me-1"></i> My Profile</a>
+                    </li>
+                    <li class="nav-item ms-lg-3">
+                        <form th:action="@{/logout}" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-neon-outline py-2 px-3 btn-sm">
+                                <i class="bi bi-box-arrow-right me-1"></i> Logout
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-5 animated-fade-in">
+        
+        <!-- Welcome banner and alert feedback messages -->
+        <div class="row mb-5">
+            <div class="col-12">
+                <div class="glass-card p-4 d-flex flex-wrap justify-content-between align-items-center gap-3">
+                    <div>
+                        <h1 class="h2 fw-bold font-outfit mb-1">Hello, <span th:text="${user.fullName}">Developer</span>!</h1>
+                        <p class="text-secondary mb-0">Analyzing career path for: <strong class="text-white" th:text="${user.jobRole}">Java Developer</strong></p>
+                    </div>
+                    <div>
+                        <span class="badge badge-custom p-2"><i class="bi bi-calendar-event me-2"></i>Logged in as User</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Success/Error alert notifications -->
+        <div class="row mb-4" th:if="${param.success != null or param.error != null}">
+            <div class="col-12">
+                <div th:if="${param.success != null}" class="alert alert-success border-0 bg-success bg-opacity-10 text-success d-flex align-items-center">
+                    <i class="bi bi-check-circle-fill me-2 fs-5"></i>
+                    <span th:text="${param.success}">Action completed successfully.</span>
+                </div>
+                <div th:if="${param.error != null}" class="alert alert-danger border-0 bg-danger bg-opacity-10 text-danger d-flex align-items-center">
+                    <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+                    <span th:text="${param.error}">An error occurred.</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Left Column: Resume Upload & Analysis Visuals -->
+            <div class="col-lg-8">
+                <div class="row g-4">
+                    
+                    <!-- Card 1: Uploaded Resume -->
+                    <div class="col-md-6">
+                        <div class="glass-card h-100 d-flex flex-column justify-content-between">
+                            <div>
+                                <div class="d-flex align-items-center justify-content-between mb-4">
+                                    <h3 class="h5 fw-bold mb-0"><i class="bi bi-file-earmark-arrow-up text-neon-blue me-2"></i> Uploaded Resume</h3>
+                                    <span class="badge bg-secondary bg-opacity-20 text-secondary small">PDF/DOCX</span>
+                                </div>
+                                <div class="p-3 bg-dark bg-opacity-30 rounded-3 mb-4 text-center">
+                                    <i class="bi bi-file-earmark-check fs-2 text-neon-purple mb-2 d-block" th:if="${user.resumeFileName != null}"></i>
+                                    <i class="bi bi-file-earmark-x fs-2 text-secondary mb-2 d-block" th:if="${user.resumeFileName == null}"></i>
+                                    <span class="d-block small text-white text-truncate" th:text="${user.resumeFileName != null ? user.resumeFileName : 'No resume uploaded yet'}">No resume uploaded</span>
+                                    <span class="text-secondary small" th:if="${user.resumeFileName != null}">Click Upload to replace</span>
+                                </div>
+                            </div>
+                            
+                            <form th:action="@{/dashboard/upload-resume}" method="post" enctype="multipart/form-data">
+                                <div class="mb-3">
+                                    <input type="file" id="resume" name="resume" class="form-control form-glass-control" accept=".pdf,.docx,.txt" required>
+                                </div>
+                                <button type="submit" class="btn btn-neon w-100">
+                                    Analyze Resume <i class="bi bi-arrow-repeat ms-1"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Card 2: AI Analysis Match percentage -->
+                    <div class="col-md-6">
+                        <div class="glass-card h-100 d-flex flex-column justify-content-between">
+                            <div class="d-flex align-items-center justify-content-between mb-3">
+                                <h3 class="h5 fw-bold mb-0"><i class="bi bi-pie-chart text-neon-purple me-2"></i> Skill Match Rating</h3>
+                                <span class="badge badge-custom small" th:if="${user.matchPercentage != null}" th:text="${user.matchPercentage + '%'}">0%</span>
+                            </div>
+                            
+                            <div class="py-3 text-center">
+                                <div class="circle-progress-wrapper" th:if="${user.matchPercentage != null}">
+                                    <svg class="circle-progress-svg" width="150" height="150" viewBox="0 0 150 150">
+                                        <defs>
+                                            <linearGradient id="gradient-neon" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                <stop offset="0%" stop-color="#00f2fe"/>
+                                                <stop offset="100%" stop-color="#9b51e0"/>
+                                            </linearGradient>
+                                        </defs>
+                                        <circle class="circle-progress-bg" cx="75" cy="75" r="60"></circle>
+                                        <circle class="circle-progress-bar" cx="75" cy="75" r="60" 
+                                                th:stroke-dasharray="377" 
+                                                th:stroke-dashoffset="${377 - (377 * (user.matchPercentage != null ? user.matchPercentage : 0)) / 100}"></circle>                                    </svg>
+                                    <div class="circle-progress-text">
+                                        <div class="circle-progress-num" th:text="${user.matchPercentage}">0</div>
+                                        <div class="circle-progress-label">Match %</div>
+                                    </div>
+                                </div>
+                                <div class="text-secondary py-4" th:if="${user.matchPercentage == null}">
+                                    <i class="bi bi-stars fs-1 text-neon-blue mb-2 d-block"></i>
+                                    <p class="small mb-0">Upload a resume to calculate match status.</p>
+                                </div>
+                            </div>
+
+                            <a href="/dashboard/roadmap" class="btn btn-neon-outline w-100" th:classappend="${user.matchPercentage == null ? 'disabled' : ''}">
+                                View AI Learning Roadmap <i class="bi bi-arrow-right-short"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Card 3: Skills List & Gaps -->
+                    <div class="col-12">
+                        <div class="glass-card">
+                            <h3 class="h5 fw-bold mb-4"><i class="bi bi-cpu text-neon-blue me-2"></i> Skill Gap Analysis</h3>
+                            
+                            <div th:if="${user.resumeFileName == null}" class="text-center py-4">
+                                <p class="text-secondary">Please upload your resume to inspect matching and missing technologies.</p>
+                            </div>
+
+                            <div th:if="${user.resumeFileName != null}">
+                                <div class="mb-4">
+                                    <h4 class="h6 text-secondary uppercase fw-bold mb-3">Matched Competencies</h4>
+                                    <div class="d-flex flex-wrap gap-2" th:if="${user.skills != null and !#strings.isEmpty(user.skills)}">
+                                        <span th:each="skill : ${#strings.arraySplit(user.skills, ', ')}" class="badge badge-custom">
+                                            <i class="bi bi-patch-check-fill me-1"></i> 
+                                            <span th:text="${skill}">Skill</span>
+                                            <span th:if="${quizScoresMap != null and quizScoresMap.containsKey(skill)}" 
+                                                  th:text="' (' + ${quizScoresMap.get(skill)} + '/5)'" 
+                                                  class="small ms-1 opacity-75"></span>
+                                        </span>
+                                    </div>
+                                    <div class="text-secondary small" th:if="${user.skills == null or #strings.isEmpty(user.skills)}">
+                                        No matched skills. Let's work on acquiring them!
+                                    </div>
+                                </div>
+
+                                <div class="mb-2">
+                                    <h4 class="h6 text-secondary uppercase fw-bold mb-3">Missing Competencies (Identify Gaps)</h4>
+                                    <div class="d-flex flex-wrap gap-2" th:if="${user.missingSkills != null and !#strings.isEmpty(user.missingSkills)}">
+                                        <span th:each="skill : ${#strings.arraySplit(user.missingSkills, ', ')}" class="badge badge-missing">
+                                            <i class="bi bi-exclamation-circle-fill me-1"></i> 
+                                            <span th:text="${skill}">Skill</span>
+                                            <span th:if="${quizScoresMap != null and quizScoresMap.containsKey(skill)}" 
+                                                  th:text="' (' + ${quizScoresMap.get(skill)} + '/5)'" 
+                                                  class="small ms-1 opacity-75"></span>
+                                        </span>
+                                    </div>
+                                    <div class="mt-3" th:if="${user.missingSkills != null and !#strings.isEmpty(user.missingSkills)}">
+                                        <a href="/dashboard/quiz" class="btn btn-sm btn-neon-outline py-1 px-3">
+                                            <i class="bi bi-journal-code me-1"></i> Take Skill Quizzes to Unlock Gaps
+                                        </a>
+                                    </div>
+                                    <div class="text-success small fw-bold" th:if="${user.missingSkills == null or #strings.isEmpty(user.missingSkills)}">
+                                        <i class="bi bi-trophy-fill me-1"></i> Perfect Match! No missing skills identified.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Chart progress & Profile Details -->
+            <div class="col-lg-4">
+                <div class="row g-4">
+                    
+                    <!-- Card 4: Progress Visualization Chart -->
+                    <div class="col-12">
+                        <div class="glass-card">
+                            <h3 class="h5 fw-bold mb-4"><i class="bi bi-graph-up-arrow text-neon-blue me-2"></i> Skill Progress</h3>
+                            <div style="height: 220px;" class="position-relative">
+                                <canvas id="skillsChart" 
+                                        th:data-matching="${user.progressPercentage != null ? user.progressPercentage : 0}" 
+                                        th:data-missing="${user.progressPercentage != null ? 100 - user.progressPercentage : 100}"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 5: Profile Overview -->
+                    <div class="col-12">
+                        <div class="glass-card text-center">
+                            <div class="profile-avatar-glow">
+                                <span th:text="${user.fullName != null and !#strings.isEmpty(user.fullName) ? #strings.substring(user.fullName, 0, 1).toUpperCase() : 'D'}">D</span>
+                            </div>
+                            <h3 class="h5 fw-bold font-outfit mb-1" th:text="${user.fullName}">Developer Name</h3>
+                            <p class="text-secondary small mb-3" th:text="${user.email}">user@skillsync.com</p>
+                            
+                            <hr class="border-secondary border-opacity-10 my-3">
+                            
+                            <div class="text-start mb-4">
+                                <span class="d-block text-secondary small mb-1">Target Job Role:</span>
+                                <span class="d-block text-white fw-semibold mb-3" th:text="${user.jobRole}">Java Developer</span>
+
+                                <span class="d-block text-secondary small mb-1">Account Created:</span>
+                                <span class="d-block text-white small" th:text="${#temporals.format(user.createdAt, 'dd MMM yyyy, hh:mm a')}">14 July 2026</span>
+                            </div>
+
+                            <a href="/dashboard/profile" class="btn btn-neon-outline btn-sm w-100">
+                                Edit Profile / Adjust Role <i class="bi bi-pencil-square ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="border-top border-secondary border-opacity-10 py-4 mt-5 bg-dark bg-opacity-20">
+        <div class="container text-center">
+            <p class="text-secondary mb-0">© 2026 SkillSync AI. Designed with modern purple-blue theme. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Custom Dashboard Script -->
+    <script src="/js/dashboard.js"></script>
+</body>
+</html>

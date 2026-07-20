@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkillSync AI - Admin Panel</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="bg-glow"></div>
+    <div class="bg-glow-right"></div>
+
+    <!-- Navigation Header -->
+    <nav class="navbar navbar-expand-lg navbar-custom navbar-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold d-flex align-items-center" href="/admin">
+                <i class="bi bi-shield-lock me-2 text-neon-blue"></i>
+                <span>SkillSync AI Admin</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom active" href="/admin"><i class="bi bi-graph-up"></i> Reports & Users</a>
+                    </li>
+                    <li class="nav-item ms-lg-3">
+                        <form th:action="@{/logout}" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-neon-outline py-2 px-3 btn-sm">
+                                <i class="bi bi-box-arrow-right me-1"></i> Logout
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-5 animated-fade-in">
+        
+        <!-- Header -->
+        <div class="row mb-5">
+            <div class="col-12">
+                <div class="glass-card p-4 d-flex flex-wrap justify-content-between align-items-center gap-3">
+                    <div>
+                        <h1 class="h2 fw-bold font-outfit mb-1">Administrative Dashboard</h1>
+                        <p class="text-secondary mb-0">Monitor platform engagement, inspect global skill matrices, and manage user directories.</p>
+                    </div>
+                    <div>
+                        <span class="badge bg-danger bg-opacity-20 text-danger p-2"><i class="bi bi-shield-fill-check me-2"></i>Admin Mode</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Success/Error alert notifications -->
+        <div class="row mb-4" th:if="${param.success != null or param.error != null}">
+            <div class="col-12">
+                <div th:if="${param.success != null}" class="alert alert-success border-0 bg-success bg-opacity-10 text-success d-flex align-items-center">
+                    <i class="bi bi-check-circle-fill me-2 fs-5"></i>
+                    <span th:text="${param.success}">Action completed successfully.</span>
+                </div>
+                <div th:if="${param.error != null}" class="alert alert-danger border-0 bg-danger bg-opacity-10 text-danger d-flex align-items-center">
+                    <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+                    <span th:text="${param.error}">An error occurred.</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- High Level Stats Grid -->
+        <div class="row g-4 mb-5">
+            <div class="col-md-4">
+                <div class="glass-card admin-stat-card blue">
+                    <span class="text-secondary small d-block mb-1">Total Platform Users</span>
+                    <h2 class="display-5 fw-extrabold text-white mb-0" th:text="${totalUsers}">0</h2>
+                    <span class="text-secondary small"><i class="bi bi-people me-1"></i> Registered candidates</span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="glass-card admin-stat-card">
+                    <span class="text-secondary small d-block mb-1">Average Match Rating</span>
+                    <h2 class="display-5 fw-extrabold text-white mb-0" th:text="${avgMatchPercentage + '%'}">0%</h2>
+                    <span class="text-secondary small"><i class="bi bi-bar-chart-steps me-1"></i> Global candidate score</span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="glass-card admin-stat-card pink">
+                    <span class="text-secondary small d-block mb-1">Platform Administrators</span>
+                    <h2 class="display-5 fw-extrabold text-white mb-0" th:text="${totalAdmins}">1</h2>
+                    <span class="text-secondary small"><i class="bi bi-shield-lock me-1"></i> Active operators</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chart and User Table Row -->
+        <div class="row g-4">
+            
+            <!-- Left Chart: Roles Distribution -->
+            <div class="col-lg-5">
+                <div class="glass-card h-100">
+                    <h3 class="h5 fw-bold mb-4"><i class="bi bi-bar-chart-line text-neon-blue me-2"></i> Job Role Distributions</h3>
+                    <div style="height: 300px;" class="position-relative">
+                        <canvas id="adminRolesChart"
+                                th:data-java="${roleDistribution['Java Developer']}"
+                                th:data-python="${roleDistribution['Python Developer']}"
+                                th:data-fullstack="${roleDistribution['Full Stack Developer']}"
+                                th:data-backend="${roleDistribution['Backend Developer']}"
+                                th:data-frontend="${roleDistribution['Frontend Developer']}"
+                                th:data-devops="${roleDistribution['DevOps Engineer']}"
+                                th:data-datascientist="${roleDistribution['Data Scientist']}"
+                                th:data-mobile="${roleDistribution['Mobile Developer']}"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Table: User Management Directory -->
+            <div class="col-lg-7">
+                <div class="glass-card h-100">
+                    <h3 class="h5 fw-bold mb-4"><i class="bi bi-person-lines-fill text-neon-purple me-2"></i> Platform User Directory</h3>
+                    
+                    <div th:if="${users.isEmpty()}" class="text-center py-5">
+                        <p class="text-secondary mb-0">No candidate accounts registered in the database yet.</p>
+                    </div>
+
+                    <div class="table-responsive" th:if="${!users.isEmpty()}">
+                        <table class="table table-dark table-hover table-borderless align-middle mb-0" style="--bs-table-bg: transparent;">
+                            <thead>
+                                <tr class="border-bottom border-secondary border-opacity-10 text-secondary small">
+                                    <th scope="col" class="pb-3">Candidate</th>
+                                    <th scope="col" class="pb-3">Target Path</th>
+                                    <th scope="col" class="pb-3 text-center">Score</th>
+                                    <th scope="col" class="pb-3 text-end">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="u : ${users}">
+                                    <td class="py-3">
+                                        <div class="d-flex align-items-center">
+                                            <div class="bg-secondary bg-opacity-20 text-white rounded-circle d-flex align-items-center justify-content-center fw-bold me-3" style="width: 40px; height: 40px; font-size: 0.9rem;" th:text="${u.fullName != null and !#strings.isEmpty(u.fullName) ? #strings.substring(u.fullName, 0, 1).toUpperCase() : 'U'}">
+                                                U
+                                            </div>
+                                            <div>
+                                                <div class="fw-semibold text-white" th:text="${u.fullName}">User Name</div>
+                                                <div class="text-secondary small" th:text="${u.email}">email@example.com</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="py-3">
+                                        <span class="text-white small" th:text="${u.jobRole != null ? u.jobRole : 'Not Set'}">Java Developer</span>
+                                    </td>
+                                    <td class="py-3 text-center">
+                                        <span class="badge" 
+                                              th:classappend="${u.matchPercentage == null ? 'bg-secondary bg-opacity-20 text-secondary' : 
+                                                              (u.matchPercentage >= 70 ? 'bg-success bg-opacity-15 text-success border border-success border-opacity-20' : 
+                                                              (u.matchPercentage >= 40 ? 'bg-warning bg-opacity-15 text-warning border border-warning border-opacity-20' : 
+                                                              'bg-danger bg-opacity-15 text-danger border border-danger border-opacity-20'))}"
+                                              th:text="${u.matchPercentage != null ? u.matchPercentage + '%' : 'N/A'}">0%</span>
+                                    </td>
+                                    <td class="py-3 text-end">
+                                        <form th:action="@{/admin/users/delete/{id}(id=${u.id})}" method="post" 
+                                              onsubmit="return confirm('Are you absolutely sure you want to delete this user profile? This action is irreversible.');">
+                                            <button type="submit" class="btn btn-outline-danger btn-sm rounded-3">
+                                                <i class="bi bi-trash3"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="border-top border-secondary border-opacity-10 py-4 mt-5 bg-dark bg-opacity-20">
+        <div class="container text-center">
+            <p class="text-secondary mb-0">© 2026 SkillSync AI. Designed with modern purple-blue theme. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Custom Charts Script -->
+    <script src="/js/dashboard.js"></script>
+</body>
+</html>

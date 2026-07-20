@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkillSync AI - Skill Quizzes</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .quiz-option-label {
+            display: block;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: 10px;
+        }
+        .quiz-option-label:hover {
+            background: rgba(0, 242, 254, 0.05);
+            border-color: var(--accent-blue);
+        }
+        .quiz-option-input:checked + .quiz-option-label {
+            background: rgba(155, 81, 224, 0.15);
+            border-color: var(--accent-purple);
+            box-shadow: 0 0 10px rgba(155, 81, 224, 0.3);
+        }
+        .quiz-option-input {
+            display: none;
+        }
+        .question-card {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 25px;
+            margin-bottom: 25px;
+        }
+        .question-card:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+            margin-bottom: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-glow"></div>
+    <div class="bg-glow-right"></div>
+
+    <!-- Navigation Header -->
+    <nav class="navbar navbar-expand-lg navbar-custom navbar-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold d-flex align-items-center" href="/dashboard">
+                <i class="bi bi-cpu-fill me-2 text-neon-blue"></i>
+                <span>SkillSync AI</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom" href="/dashboard"><i class="bi bi-speedometer2 me-1"></i> Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom" href="/dashboard/roadmap"><i class="bi bi-compass me-1"></i> AI Roadmap</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom active" href="/dashboard/quiz"><i class="bi bi-journal-code me-1"></i> Skill Quizzes</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom" href="/dashboard/profile"><i class="bi bi-person me-1"></i> My Profile</a>
+                    </li>
+                    <li class="nav-item ms-lg-3">
+                        <form th:action="@{/logout}" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-neon-outline py-2 px-3 btn-sm">
+                                <i class="bi bi-box-arrow-right me-1"></i> Logout
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-5 animated-fade-in">
+
+        <!-- Back Link and Header -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <a href="/dashboard" class="text-secondary small text-decoration-none mb-3 d-inline-block">
+                    <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
+                </a>
+                <div class="glass-card p-4">
+                    <h1 class="h2 fw-bold font-outfit mb-1">
+                        <i class="bi bi-journal-code text-neon-blue me-2"></i> 
+                        <span th:text="${quizActive ? 'Skill Assessment: ' + skill : 'Interactive Skill Quizzes'}">Interactive Skill Quizzes</span>
+                    </h1>
+                    <p class="text-secondary mb-0" th:text="${quizActive ? 'Complete the following ' + quizTotal + '-question assessment. You must score ' + passingScore + '/' + quizTotal + ' or higher to pass.' : 'Validate your knowledge, bridge your skill gaps, and unlock competencies permanently.'}"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Success/Error alert notifications -->
+        <div class="row mb-4" th:if="${param.success != null or param.error != null}">
+            <div class="col-12">
+                <div th:if="${param.success != null}" class="alert alert-success border-0 bg-success bg-opacity-10 text-success d-flex align-items-center">
+                    <i class="bi bi-check-circle-fill me-2 fs-5"></i>
+                    <span th:text="${param.success}">Action completed successfully.</span>
+                </div>
+                <div th:if="${param.error != null}" class="alert alert-danger border-0 bg-danger bg-opacity-10 text-danger d-flex align-items-center">
+                    <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+                    <span th:text="${param.error}">An error occurred.</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz List View -->
+        <div class="row g-4" th:if="${!quizActive}">
+            <div class="col-12">
+                <!-- Locked Skill Assessments -->
+                <div class="glass-card mb-4">
+                    <h2 class="h4 fw-bold mb-4"><i class="bi bi-lock text-neon-purple me-2"></i> Locked Skill Assessments</h2>
+                    
+                    <!-- If no missing skills -->
+                    <div th:if="${missingSkills.isEmpty()}" class="text-center py-5">
+                        <i class="bi bi-trophy fs-1 text-neon-blue mb-3 d-block"></i>
+                        <h3 class="h4">All Skills Unlocked!</h3>
+                        <p class="text-secondary col-md-8 mx-auto mb-0">Excellent work! You have matched all required skills for your job role. No missing competencies detected.</p>
+                    </div>
+
+                    <!-- If there are missing skills -->
+                    <div class="row g-4" th:if="${!missingSkills.isEmpty()}">
+                        <div class="col-md-6 col-lg-4" th:each="skill : ${missingSkills}">
+                            <div class="p-4 bg-dark bg-opacity-30 border border-secondary border-opacity-10 rounded-3 h-100 d-flex flex-column justify-content-between">
+                                <div>
+                                    <div class="d-flex align-items-center justify-content-between mb-3">
+                                        <h3 class="h5 text-white fw-bold mb-0" th:text="${skill}">Skill Name</h3>
+                                        <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-20"><i class="bi bi-lock-fill"></i> Locked</span>
+                                    </div>
+                                    <p class="text-secondary small mb-3">Take a quick 5-question assessment to prove proficiency and unlock this skill in your profile.</p>
+                                    
+                                    <div th:if="${quizScores != null and quizScores.containsKey(skill)}" class="mb-3">
+                                        <span class="small text-secondary">Last Score: </span>
+                                        <span class="small fw-bold text-danger" th:text="${quizScores.get(skill)} + '/5 (Failed)'">2/5</span>
+                                    </div>
+                                </div>
+                                <a th:href="@{/dashboard/quiz/start(skill=${skill})}" class="btn btn-neon-outline w-100 btn-sm">
+                                    Start Quiz <i class="bi bi-play-fill ms-1"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Completed/Unlocked Skill Quizzes -->
+                <div class="glass-card" th:if="${unlockedSkills != null and !unlockedSkills.isEmpty()}">
+                    <h2 class="h4 fw-bold mb-4"><i class="bi bi-patch-check text-neon-blue me-2"></i> Completed Skill Quizzes</h2>
+                    <div class="row g-4">
+                        <div class="col-md-6 col-lg-4" th:each="skill : ${unlockedSkills}">
+                            <div class="p-4 bg-dark bg-opacity-30 border border-secondary border-opacity-10 rounded-3 h-100 d-flex flex-column justify-content-between">
+                                <div>
+                                    <div class="d-flex align-items-center justify-content-between mb-3">
+                                        <h3 class="h5 text-white fw-bold mb-0" th:text="${skill}">Skill Name</h3>
+                                        <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-20"><i class="bi bi-check-circle-fill"></i> Passed</span>
+                                    </div>
+                                    <p class="text-secondary small mb-3">You have demonstrated proficiency in this skill.</p>
+                                    <div class="mt-2" th:if="${quizScores != null and quizScores.containsKey(skill)}">
+                                        <span class="small text-secondary">Score: </span>
+                                        <span class="small fw-bold text-success" th:text="${quizScores.get(skill)} + '/5'">5/5</span>
+                                    </div>
+                                    <div class="mt-2" th:if="${quizScores == null or !quizScores.containsKey(skill)}">
+                                        <span class="small text-secondary">Unlocked via Profile/Resume</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Quiz View -->
+        <div class="row justify-content-center" th:if="${quizActive}">
+            <div class="col-lg-8">
+                <form th:action="@{/dashboard/quiz/submit}" method="post" class="glass-card p-4">
+                    <input type="hidden" name="skill" th:value="${skill}">
+
+                    <div th:each="q, iter : ${questions}" class="question-card">
+                        <input type="hidden" th:name="'q' + ${iter.index} + '_id'" th:value="${q.id}" />
+                        <h3 class="h6 text-white fw-bold mb-3 d-flex">
+                            <span class="text-neon-blue me-2" th:text="${iter.index + 1} + '.'">1.</span>
+                            <span th:text="${q.questionText}">Question text goes here?</span>
+                        </h3>
+
+                        <div class="options-container">
+                            <div th:each="opt, optIter : ${q.options}">
+                                <input type="radio" 
+                                       th:id="'q' + ${iter.index} + '_' + ${optIter.index}" 
+                                       th:name="'q' + ${iter.index}" 
+                                       th:value="${optIter.index}" 
+                                       class="quiz-option-input" 
+                                       required>
+                                <label th:for="'q' + ${iter.index} + '_' + ${optIter.index}" class="quiz-option-label">
+                                    <span th:text="${opt}">Option Text</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-3 mt-4 justify-content-end">
+                        <a href="/dashboard/quiz" class="btn btn-secondary bg-opacity-10 border-0 px-4 text-white">Cancel</a>
+                        <button type="submit" class="btn btn-neon px-4">Submit Assessment <i class="bi bi-send ms-1"></i></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="border-top border-secondary border-opacity-10 py-4 mt-5 bg-dark bg-opacity-20">
+        <div class="container text-center">
+            <p class="text-secondary mb-0">© 2026 SkillSync AI. Designed with modern purple-blue theme. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

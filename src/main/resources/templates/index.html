@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkillSync AI - AI Skill Gap Analyzer</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="bg-glow"></div>
+    <div class="bg-glow-right"></div>
+
+    <!-- Header Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-custom navbar-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand fw-extrabold d-flex align-items-center" href="/">
+                <i class="bi bi-cpu-fill me-2 text-neon-blue"></i>
+                <span>SkillSync AI</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom active" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom" href="#features">Features</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom" href="#about">About</a>
+                    </li>
+                    
+                    <!-- Anonymous Guest Menu -->
+                    <li class="nav-item" sec:authorize="isAnonymous()">
+                        <a class="nav-link nav-link-custom" href="/login">Login</a>
+                    </li>
+                    <li class="nav-item" sec:authorize="isAnonymous()">
+                        <a class="btn btn-neon ms-2" href="/register">Get Started</a>
+                    </li>
+
+                    <!-- Authenticated User Menu -->
+                    <li class="nav-item" sec:authorize="hasAuthority('ROLE_USER')">
+                        <a class="btn btn-neon ms-2" href="/dashboard">
+                            <i class="bi bi-speedometer2 me-1"></i> Dashboard
+                        </a>
+                    </li>
+
+                    <!-- Authenticated Admin Menu -->
+                    <li class="nav-item" sec:authorize="hasAuthority('ROLE_ADMIN')">
+                        <a class="btn btn-neon ms-2" href="/admin">
+                            <i class="bi bi-shield-lock me-1"></i> Admin Panel
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="container mt-5 py-5 text-center position-relative animated-fade-in">
+        <div class="row justify-content-center py-5">
+            <div class="col-lg-10">
+                <span class="badge badge-custom mb-3">Powered by Advanced Skill Analytics</span>
+                <h1 class="display-3 fw-extrabold mb-4 font-outfit" style="letter-spacing: -1px;">
+                    Bridge the Gap to Your <span class="text-neon-blue">Dream Job Role</span>
+                </h1>
+                <p class="lead text-secondary col-md-9 mx-auto mb-5">
+                    Upload your resume, compare your current skills against industry standard job roles, identify technical gaps, and generate a customized AI learning roadmap to upskill.
+                </p>
+                <div class="d-flex justify-content-center gap-3">
+                    <a sec:authorize="isAnonymous()" href="/register" class="btn btn-neon btn-lg px-4">
+                        Analyze Resume Now <i class="bi bi-arrow-right-short ms-1"></i>
+                    </a>
+                    <a sec:authorize="isAuthenticated()" href="/dashboard" class="btn btn-neon btn-lg px-4">
+                        Go to Dashboard <i class="bi bi-speedometer2 ms-1"></i>
+                    </a>
+                    <a href="#features" class="btn btn-neon-outline btn-lg px-4">Learn More</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="container py-5 my-5">
+        <div class="text-center mb-5 animated-fade-in animation-delay-1">
+            <h2 class="h1 font-outfit fw-bold">Features & Intelligent Tools</h2>
+            <p class="text-secondary col-md-6 mx-auto">Explore the modules designed to accelerate your software engineering career.</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4 animated-fade-in animation-delay-1">
+                <div class="glass-card text-center h-100">
+                    <div class="feature-icon"><i class="bi bi-file-earmark-pdf"></i></div>
+                    <h3 class="h4 mb-3">Resume Skill Parser</h3>
+                    <p class="text-secondary">Directly parse PDF and DOCX files. Our parser extracts and catalogs your existing programming languages, libraries, and framework competencies.</p>
+                </div>
+            </div>
+            <div class="col-md-4 animated-fade-in animation-delay-2">
+                <div class="glass-card text-center h-100">
+                    <div class="feature-icon"><i class="bi bi-bar-chart-steps"></i></div>
+                    <h3 class="h4 mb-3">AI Skill Gap Analyzer</h3>
+                    <p class="text-secondary">Compare your parsed credentials against 5 major developer roles to find missing competencies and receive an exact match percentage rating.</p>
+                </div>
+            </div>
+            <div class="col-md-4 animated-fade-in animation-delay-2">
+                <div class="glass-card text-center h-100">
+                    <div class="feature-icon"><i class="bi bi-compass"></i></div>
+                    <h3 class="h4 mb-3">AI Learning Roadmap</h3>
+                    <p class="text-secondary">Get a custom learning timeline including phase goals, recommended online courses, coding project definitions, and matching certifications.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About / Info Section -->
+    <section id="about" class="container py-5 my-5">
+        <div class="glass-card p-5 border-glow">
+            <div class="row align-items-center">
+                <div class="col-lg-6 mb-4 mb-lg-0">
+                    <span class="badge badge-custom mb-3">About SkillSync AI</span>
+                    <h2 class="font-outfit fw-bold mb-4">Empowering Tech Talents to Align with Industry Standards</h2>
+                    <p class="text-secondary mb-4">
+                        SkillSync AI was engineered to solve a common problem: candidates don't know exactly why they fail candidate filters or what skills they need to acquire to land specific technical roles. 
+                    </p>
+                    <p class="text-secondary mb-4">
+                        By integrating document parsing with smart gap calculations, SkillSync AI helps developers plan their upskilling paths and prove their progress with charts, roadmaps, and portfolio projects.
+                    </p>
+                </div>
+                <div class="col-lg-6 text-center">
+                    <div class="p-4 border border-secondary border-opacity-10 rounded-3 bg-dark bg-opacity-40">
+                        <h4 class="text-neon-blue mb-4"><i class="bi bi-shield-check me-2"></i>Supported Career Paths</h4>
+                        <ul class="list-unstyled text-start text-secondary mx-auto" style="max-width: 300px;">
+                            <li class="mb-2"><i class="bi bi-check-circle-fill text-neon-purple me-2"></i> Java Developer</li>
+                            <li class="mb-2"><i class="bi bi-check-circle-fill text-neon-purple me-2"></i> Python Developer</li>
+                            <li class="mb-2"><i class="bi bi-check-circle-fill text-neon-purple me-2"></i> Full Stack Developer</li>
+                            <li class="mb-2"><i class="bi bi-check-circle-fill text-neon-purple me-2"></i> Backend Developer</li>
+                            <li class="mb-2"><i class="bi bi-check-circle-fill text-neon-purple me-2"></i> Frontend Developer</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="border-top border-secondary border-opacity-10 py-4 mt-5 bg-dark bg-opacity-20">
+        <div class="container text-center">
+            <p class="text-secondary mb-0">© 2026 SkillSync AI. Designed with modern purple-blue theme. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

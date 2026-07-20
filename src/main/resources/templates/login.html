@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkillSync AI - Login</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="d-flex align-items-center justify-content-center min-vh-100 position-relative">
+    <div class="bg-glow"></div>
+    <div class="bg-glow-right"></div>
+
+    <div class="container" style="max-width: 450px;">
+        <div class="text-center mb-4">
+            <a href="/" class="d-inline-flex align-items-center text-decoration-none mb-2">
+                <i class="bi bi-cpu-fill fs-1 text-neon-blue me-2"></i>
+                <span class="fs-2 fw-bold text-white font-outfit">SkillSync AI</span>
+            </a>
+            <p class="text-secondary">Access your AI skill reports and roads</p>
+        </div>
+
+        <div class="glass-card">
+            <h2 class="h3 fw-bold text-center mb-4 font-outfit">Welcome Back</h2>
+
+            <!-- Session / Parameters Messages -->
+            <div th:if="${param.error != null}" class="alert alert-danger border-0 bg-danger bg-opacity-10 text-danger small mb-3">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i> Invalid email or password.
+            </div>
+
+            <div th:if="${param.logout != null}" class="alert alert-success border-0 bg-success bg-opacity-10 text-success small mb-3">
+                <i class="bi bi-check-circle-fill me-2"></i> You have been logged out successfully.
+            </div>
+
+            <div th:if="${param.registered != null}" class="alert alert-success border-0 bg-success bg-opacity-10 text-success small mb-3">
+                <i class="bi bi-check-circle-fill me-2"></i> Registration successful! Please log in below.
+            </div>
+
+            <!-- Login Form -->
+            <form th:action="@{/login}" method="post">
+                <div class="mb-3">
+                    <label for="email" class="form-label text-secondary small">Email Address</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-dark border-secondary border-opacity-10 text-secondary">
+                            <i class="bi bi-envelope"></i>
+                        </span>
+                        <input type="email" id="email" name="email" class="form-control form-glass-control" placeholder="name@example.com" required>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label for="password" class="form-label text-secondary small">Password</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-dark border-secondary border-opacity-10 text-secondary">
+                            <i class="bi bi-lock"></i>
+                        </span>
+                        <input type="password" id="password" name="password" class="form-control form-glass-control" placeholder="••••••••" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-neon w-100 mb-3">
+                    Log In <i class="bi bi-box-arrow-in-right ms-1"></i>
+                </button>
+
+                <div class="text-center">
+                    <span class="text-secondary small">Don't have an account? </span>
+                    <a href="/register" class="text-neon-blue small text-decoration-none fw-bold">Sign Up</a>
+                </div>
+            </form>
+        </div>
+        
+        <div class="text-center mt-4">
+            <a href="/" class="text-secondary small text-decoration-none">
+                <i class="bi bi-arrow-left me-1"></i> Back to Home
+            </a>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
