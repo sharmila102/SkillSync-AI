@@ -6,4 +6,6 @@ COPY . .
 
 RUN chmod +x mvnw && ./mvnw clean package -DskipTests
 
-CMD sh -c "java -jar target/*.jar"
+RUN ls -la target
+
+CMD ["java", "-jar", "target/skillsync-0.0.1-SNAPSHOT.jar"]
